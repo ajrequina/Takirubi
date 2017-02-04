@@ -1,0 +1,87 @@
+create type ctype as enum('individual', 'corporate');
+
+create table Client(
+Client_ID 	bigserial,
+Name 		varchar(100) not null,
+Client_Type ctype not null,
+primary key(Client_ID) 
+);
+
+create table Service(
+Service_ID 	bigserial,
+Location 	varchar(100),
+S_Type 		varchar(100),
+Price 		int,
+Schedule 	date,
+primary key(Service_ID)
+);
+
+create table Contract(
+contract_num bigserial,
+client_num integer,
+service_ID integer,
+date date,
+primary key(contract_num),
+foreign key(client_num) references Client(Client_ID) on update cascade on delete cascade,
+foreign key(service_id) references Service(Service_ID) on update cascade on delete cascade
+);
+
+
+create type ptype as enum('staff','photograph');
+
+create table Photographer(
+Photographer_ID bigserial,
+Availability boolean,
+Name varchar(100),
+Type ptype,
+primary key(Photographer_ID)
+);
+
+alter table Contract
+add Assigned_Photographer integer;
+
+alter table Contract
+add foreign key(Assigned_Photographer)
+references Photographer(Photographer_ID)
+on update cascade on delete cascade;
+
+create table Proofs(
+Proof_ID bigserial,
+Assigned_Photographer integer,
+Package_ID integer,
+Expiration_Date date,
+primary key(Proof_ID),
+foreign key(Assigned_Photographer) 
+references Photographer(Photographer_ID)
+on update cascade on delete cascade
+);
+
+create table Package(
+Pack_ID bigserial,
+Client_ID integer,
+primary key(Pack_ID),
+foreign key(Client_ID)
+references Client(Client_ID)
+on update cascade on delete cascade
+);
+
+alter table Proofs
+add foreign key(Package_ID)
+references Package(Pack_ID);
+
+create table Selection(
+Order_ID bigserial,
+Pack_ID integer,
+Proof_ID integer,
+Client_ID integer,
+primary key(Order_ID),
+foreign key(Pack_ID) references
+Package(Pack_ID)
+on update cascade on delete cascade,
+foreign key(Proof_ID) references
+Proofs(Proof_ID)
+on update cascade on delete cascade,
+foreign key(Client_ID) references
+Client(Client_ID)
+on update cascade on delete cascade
+);
